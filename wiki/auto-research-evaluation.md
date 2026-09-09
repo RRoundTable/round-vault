@@ -167,7 +167,7 @@ successful ones ([[agentic-context-engineering]]), and Self-Harness clusters fai
 verifier-grounded patterns where the *causal mechanism*, not the terminal error string, is
 the unit of analysis ([[self-improving-harness]]).
 
-The same argument applies to a knowledge base: a source that failed to support a claim, or
-a page revised because it was wrong, is worth keeping legible. In this vault git carries
-that — `git log -S'<claim>'` finds when a claim entered, and a revision leaves the
-superseded version reachable, which an append-only summary of successes would not.
+Note the asymmetry this creates with the benchmarks above. Every benchmark on this page scores
+outcomes, so a run that correctly abandons a bad hypothesis scores the same as one that never
+started. Nothing in the current evaluation stack rewards a well-reasoned negative result, which
+is the same incentive that shaped the literature the models were trained on.

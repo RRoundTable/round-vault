@@ -51,11 +51,11 @@ recur across every system at this level and are worth stating as the pattern:
 
 Meta-Harness's stated reason for needing that filesystem access is the sharpest diagnosis
 in this literature: **existing text optimizers are poorly matched to harness search because
-they compress feedback too aggressively** ([[harness-survey-arxiv-abstracts]]). The same
-failure appears as brevity bias in [[agentic-context-engineering]] and as the argument
-against regenerating pages in the [[llm-wiki-pattern]] — three independent settings, one
-mechanism: summarization discards exactly the specifics an edit would have needed. Giving
-the proposer `grep` over raw traces is not a convenience, it is the fix.
+they compress feedback too aggressively** ([[harness-survey-arxiv-abstracts]]). Summarizing
+the feedback discards exactly the specifics an edit would have needed, and which specifics
+those are is not knowable at summarization time. Giving the proposer `grep` over raw traces
+is not a convenience, it is the fix. The same mechanism appears as brevity bias in
+[[agentic-context-engineering]].
 
 It reports +7.7 points over a state-of-the-art context management system **while using 4×
 fewer context tokens**, +4.7 points on 200 IMO-level problems averaged across five held-out
@@ -198,10 +198,6 @@ rather than prose, then a model's benefit depends on *invoking* mechanisms corre
 is exactly the capability their weak tier lacks. And it is consistent with what DGM
 discovered by blind search: code editing tools, context-window management, peer review, all
 structural ([[evolutionary-program-search]]).
-
-The same logic applies to a wiki. `CLAUDE.md`'s durable value is in its mechanisms — derived
-catalog, immutable `raw/`, frontmatter that makes a page findable — rather than in its
-exhortations about writing well.
 
 ## Evolutionary search over harnesses
 

@@ -192,10 +192,15 @@ one) and *brevity bias* (each rewrite looks like an improvement because shorter 
 better, and the ratchet turns one way only). Its fix is incremental itemized updates merged
 by deterministic logic ([[agentic-context-engineering]]).
 
-That is this vault's rule about not regenerating the catalog, arrived at from the opposite
-end. The shared claim: **additions and targeted revisions compound; wholesale rewrites
-erode.** It is also the reason `raw/` is immutable and the reason lint proposes fixes
-rather than rewriting pages.
+That is this vault's reason for immutable `raw/` and for lint *proposing* fixes rather than
+rewriting pages, arrived at from the opposite end. The shared claim: **additions and targeted
+revisions compound; wholesale rewrites erode.**
+
+It is specifically *not* the argument for deriving the catalog. That one is about a
+denormalized cache with no invalidation — two copies drifting apart — which is a different
+failure from detail lost under compression. The two get conflated easily because both end in
+"don't keep a second, staler version," but the mechanisms and the fixes differ: deduplication
+cures drift, and only refusing to summarize cures collapse.
 
 Where the two differ is what the entries hold — ACE's bullets are procedural insights
 mined from the agent's own rollouts and consumed by that same agent, while wiki pages are

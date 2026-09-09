@@ -52,9 +52,7 @@ invocation and long-horizon instruction following. Code at
 
 **Meta-Harness** (arXiv:2603.28052) states a motivation the survey skips, and it is the
 sharpest framing of the problem in the whole bibliography: existing text optimizers are
-poorly matched to harness search because **they compress feedback too aggressively**. That
-is the same failure ACE names as brevity bias and the same one the
-[[llm-wiki-pattern]] refuses. Results: +7.7 points over a state-of-the-art context
+poorly matched to harness search because **they compress feedback too aggressively**. Results: +7.7 points over a state-of-the-art context
 management system while using **4× fewer context tokens**; +4.7 points on 200 IMO-level
 problems averaged across five held-out models. Author overlap matters here — Qizheng Zhang
 appears on both ACE and Meta-Harness, and Omar Khattab (DSPy) and Chelsea Finn are

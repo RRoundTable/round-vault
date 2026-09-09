@@ -57,10 +57,9 @@ subagent output that lives only in a transient chat context goes stale and invis
 while output stored as files, logs and status records lets the parent reason over its own
 execution history.
 
-Patterns two and three share one idea, and it is the same one behind the
-[[llm-wiki-pattern]]: *write it down where the next reader can find it already
-assembled*. A file survives a context window, a crash, and a session boundary; a message
-in a transcript survives none of them.
+Patterns two and three share one idea: *write it down where the next reader can find it*.
+A file survives a context window, a crash, and a session boundary; a message in a transcript
+survives none of them.
 
 ## The coding-agent interface has stabilized
 

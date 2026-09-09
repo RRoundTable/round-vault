@@ -10,9 +10,9 @@ summary: "Treat context as an evolving playbook of itemized entries rather than 
 Appending every tool response and model generation to the context stops working as soon as
 the job horizon gets long. **Agentic Context Engineering** (ACE; Zhang et al. 2025) is the
 answer that treats context as an *evolving playbook* rather than an ever-lengthening
-prompt, and its central design choice — never rewrite the blob, emit itemized entries —
-is the same conclusion the [[llm-wiki-pattern]] reaches from a different direction
-([[lilian-weng-harness-engineering]]).
+prompt. Its central design choice is a constraint on how the playbook may be updated —
+never rewrite the blob, emit itemized entries — because the failure it is defending against
+comes from rewriting, not from length ([[lilian-weng-harness-engineering]]).
 
 Context engineering sits on the second rung of the harness optimization ladder, between
 prompts and workflow; see [[self-improving-harness]] for the rest of the climb.
@@ -104,27 +104,27 @@ the optimizer. Same bet as [[harness]]'s file-system-as-memory pattern.
 
 ## Over-compression is the recurring enemy
 
-Three systems on three different rungs of the ladder name the same failure, which is the
-strongest sign it is structural rather than incidental:
+Two systems on different rungs of the ladder name the same failure, which is some evidence
+it is structural rather than incidental:
 
-| System | Name for it | Setting |
+| System | Name for it | Where the loss happens |
 | --- | --- | --- |
-| ACE | brevity bias / context collapse | maintaining an agent's playbook |
-| Meta-Harness | "text optimizers compress feedback too aggressively" | optimizing harness code |
-| [[llm-wiki-pattern]] | denormalized cache with no invalidation | maintaining a knowledge base |
+| ACE | brevity bias / context collapse | iterative rewrites of the stored artifact |
+| Meta-Harness | "text optimizers compress feedback too aggressively" | a summarizer between the evidence and the proposer |
 
-Meta-Harness's version is the most direct: it argues existing text optimizers are *unsuited*
-to harness search because they summarize feedback before the proposer sees it, and its fix is
-to give the agent filesystem access to raw traces, source and scores so it can `grep` for
-what it needs ([[harness-survey-arxiv-abstracts]]). Same fix as ACE's itemized bullets and
-the wiki's immutable `raw/`: **do not let a summarizing step stand between the evidence and
-the thing that has to act on it.**
+These are not quite the same mechanism. ACE's loss is cumulative — each rewrite looks like an
+improvement and the ratchet turns one way. Meta-Harness's is single-step: the proposer never
+sees the detail at all, because something summarized the trace before handing it over. Its
+fix is correspondingly different — not a better merge rule but **filesystem access to the raw
+traces, source and scores, so the agent can `grep` for what it needs**
+([[harness-survey-arxiv-abstracts]]).
 
-The general form: summarization is lossy in a direction you cannot predict at summarization
-time, because which detail matters is determined by the *next* decision, not the current one.
-So the summary is useful as an index and dangerous as a replacement. AHE's layered
-drill-down — per-task reports over raw traces, with the raw traces still reachable — is the
-resolution the harness literature converges on ([[self-improving-harness]]).
+What they share is the underlying reason summarization is dangerous here: it is lossy in a
+direction you cannot predict at summarization time, because which detail matters is determined
+by the *next* decision, not the current one. That makes a summary sound as an index and unsound
+as a replacement. AHE's layered drill-down — per-task reports over raw traces, with the raw
+traces still reachable — is the resolution the harness literature converges on
+([[self-improving-harness]]).
 
 ## The mechanism/artifact split generalizes
 
