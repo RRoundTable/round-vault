@@ -115,6 +115,25 @@ less than mid-tier, presumably because they already do internally what the harne
 
 **Self-Harness** (Zhang et al. 2026) runs the loop with an explicit accept/reject gate.
 
+```mermaid
+flowchart TD
+    H["active harness h_t"] --> EVAL["evaluate · collect traces"]
+    EVAL --> MINE["weakness mining<br/>verifier-grounded patterns"]
+    MINE --> PROP["harness proposal<br/>bounded, diverse edits"]
+    PROP --> G1{"held-in split<br/>weakness resolved?"}
+    G1 -->|no| REJ["logged, not merged<br/>h_t unchanged"]
+    G1 -->|yes| G2{"held-out split<br/>anything else broken?"}
+    G2 -->|regression| REJ
+    G2 -->|clean| MERGE["merge into h_t+1"]
+    MERGE --> H
+    REJ --> PROP
+```
+
+The shape to notice is that **both** gates drain into the same reject node, and that node
+loops back to the proposer without touching `h_t`. A rejected edit costs a round and changes
+nothing — the active harness only ever moves along the one path that cleared both splits.
+That is what keeps a long run from accumulating unvalidated drift.
+
 *Weakness mining.* Evaluate under the current harness $h_t$ and collect execution traces.
 The key observation is that **the verifier outcome is not the failure**: two runs both
 logged as "timeout" or "missing artifact" can have entirely different causal mechanisms.
@@ -153,6 +172,25 @@ model and the environment. Which of the two dominates the abstract does not say.
 **Agentic Harness Engineering** (Lin et al. 2026) diagnoses the failure of naive harness
 evolution as an attribution problem: when a rollout fails, which component is responsible?
 Its answer is three pillars.
+
+```mermaid
+flowchart TD
+    RAW["raw trajectories<br/>millions of tokens"] --> TR["k traces<br/>one file each"]
+    TR --> RPT["per-task root-cause reports"]
+    RPT --> OVR["benchmark overview"]
+    OVR --> EV["evolve agent"]
+    TR -.->|"drill down on demand"| EV
+    EV --> ED["edit one component<br/>+ manifesto with a prediction"]
+    ED --> NEXT["next round"]
+    NEXT -->|"prediction verified<br/>or falsified"| ED
+    NEXT --> TR
+```
+
+Two edges carry the design. The **dotted** one is the drill-down: the evolve agent normally
+reads the overview, but the raw traces stay reachable, so summarization is an index here and
+never a replacement. And the edit has an edge coming *back* into it from the next round —
+that return edge is what makes an edit a falsifiable contract rather than a guess, and it is
+the pillar most systems omit.
 
 **Component observability.** Every editable component has a file-system representation, so
 the action space is explicit, traceable and — the paper's own word —

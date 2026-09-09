@@ -63,6 +63,31 @@ step.
 **Meta Context Engineering** (MCE; Ye et al. 2026) separates *how to manage context* from
 *what is in context*, and optimizes both at different levels.
 
+```mermaid
+flowchart TD
+    subgraph META["meta level — the mechanism"]
+        HIST[("skill history")] --> CROSS["agentic crossover"]
+        CROSS --> SKILL["skill s_k"]
+    end
+
+    subgraph BASE["base level — the artifact"]
+        ENG["context engineer"] --> CTX["context c_k<br/>a directory of files"]
+        CTX --> ROLL["rollout feedback"]
+        ROLL --> ENG
+    end
+
+    SKILL -->|"conditions"| ENG
+    CTX --> VAL["J_val on held-out"]
+    VAL --> HIST
+```
+
+Each level is a closed loop, and they turn at different speeds: the base loop cycles on
+rollout feedback within a task, while the meta loop turns once per skill, fed only by the
+validation score. The single downward edge is the coupling — a skill *conditions* the base
+loop without dictating its output. Note that the meta level never sees a rollout, only
+$J_\text{val}$, which is what stops it from overfitting the training context it is supposed
+to be generalizing over.
+
 A skill $s$ defines a context function $c_s = (\rho_s, F_s)$ mapping input $x$ to context
 $c = F_s(x; \rho_s)$, where $\rho_s$ are **static** components (prompts, knowledge bases,
 code libraries) and $F_s$ are **dynamic** operators (search, selection, filtering,

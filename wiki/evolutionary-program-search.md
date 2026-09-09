@@ -61,6 +61,22 @@ is impractical; DGM **empirically validates each change on coding benchmarks** i
 ([[harness-survey-arxiv-abstracts]]). Everything else follows from accepting evidence in
 place of proof.
 
+```mermaid
+flowchart TD
+    ARC[("archive of agents<br/>grows as a tree")]
+    ARC --> SAMP["sample a parent<br/>∝ performance ÷ children"]
+    SAMP --> LOG["parent reads its own<br/>evaluation log"]
+    LOG --> EDIT["edits its own harness code<br/>bash + editor"]
+    EDIT --> GATE{"benchmark score<br/>high enough?"}
+    GATE -->|yes| ARC
+    GATE -->|no| DROP["discarded"]
+```
+
+What separates this from hill-climbing is the node at the top: survivors return to an
+**archive**, not to a single current-best. Many lineages stay alive at once, which is what
+"open-ended" buys — and the `÷ children` term in the sampling rule is the pressure that stops
+one successful branch from monopolizing the next generation.
+
 The loop: start with one agent; each iteration sample a parent with probability proportional
 to performance and **inversely to its number of children**; have it read its own benchmark
 evaluation log and propose improvements to its own harness codebase using two tools (`bash`,

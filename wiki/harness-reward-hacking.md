@@ -18,6 +18,22 @@ Weng raises the objection against self-modifying harnesses in its strongest form
 program is allowed to edit the OS it runs on, abstraction boundaries break. The editable
 surface has to be a designed artifact, not whatever the agent can reach.
 
+```mermaid
+flowchart LR
+    OUT["read-only, outside the loop<br/>verifier · tracer · runs/ · LLM config"]
+    LOOP["harness workspace — the writable surface<br/>prompt · tools · middleware · skills<br/>sub-agent config · long-term memory"]
+
+    OUT -->|"scores rollouts"| LOOP
+    LOOP -->|"proposes edits to itself"| LOOP
+    LOOP -. "blocked: disable the verifier, swap the model,<br/>raise the budget, edit the record" .-> OUT
+```
+
+The asymmetry is the whole design: measurement flows **into** the loop, and nothing flows
+back out. The self-edit arrow curls back on the writable box alone. Every classic hack —
+turning off the verifier, swapping in a stronger model, raising the reasoning budget, editing
+the record of what happened — is an attempt to traverse the dotted edge, and it is a
+filesystem permission rather than an instruction.
+
 ## The three signals and how each is gamed
 
 | Reward source | The hack |
