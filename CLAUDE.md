@@ -100,10 +100,20 @@ one-line summary — the same thing a hand-written index would, minus the drift.
 Narrow it when you already know the shape of the question:
 
 ```bash
-grep -rl --include='*.md' '^category: tool-use-protocols' wiki/   # one category
+grep -rl  --include='*.md' '^category: tool-use-protocols' wiki/  # one category
+grep -rlE --include='*.md' '^tags:.*[][, ]memory[],]' wiki/       # one tag
 grep -rli --include='*.md' 'speculative decoding' wiki/           # full text
-grep -rl --include='*.md' '\[\[mcp\]\]' wiki/                      # what links here
+grep -rl  --include='*.md' '\[\[mcp\]\]' wiki/                     # what links here
 ```
+
+`category:` is a single value, so it matches exactly. `tags:` is an inline array, so a
+tag match has to anchor on the surrounding `[`, `,`, `]` or space. **Do not reach for
+`grep -w`** — a hyphen is a word boundary, so `grep -w memory` also matches the page
+tagged `context-memory`. That is the one place a naive pattern silently returns wrong
+pages rather than no pages.
+
+For browsing tags by hand, Obsidian's tag pane is better than any of this: it is exact,
+already enabled, and it lists counts.
 
 Use the derived catalog to *choose* pages and grep to *catch what it missed*. A summary
 is one line and will not mention everything a page covers, so when a question doesn't map
