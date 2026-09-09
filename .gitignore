@@ -1,13 +1,13 @@
-# Obsidian per-machine state (do not sync across devices)
-.obsidian/workspace.json
-.obsidian/workspace-mobile.json
-.obsidian/cache
-.obsidian/graph.json
-.obsidian/hotkeys.json
+# Obsidian per-machine state (do not sync across devices).
+# Unanchored: a vault accidentally registered on a subdirectory can't leak state either.
+**/.obsidian/workspace.json
+**/.obsidian/workspace-mobile.json
+**/.obsidian/cache
+**/.obsidian/graph.json
+**/.obsidian/hotkeys.json
 
-# Obsidian trash + plugin data
-.trash/
-.obsidian/plugins/*/data.json
+# Obsidian trash
+**/.trash/
 
 # macOS
 .DS_Store

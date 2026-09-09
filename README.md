@@ -1,28 +1,35 @@
 # round-vault
 
-Personal Obsidian vault.
+An LLM-maintained wiki on **LLM-agent-native systems**, built on the
+[LLM wiki pattern](https://gist.github.com/karpathy/442a6bf555914893e9891c11519de94f):
+an agent compiles knowledge out of raw sources into an interlinked set of markdown
+pages, and keeps them current. You curate sources and ask questions; the agent writes.
 
 ## Structure
 
-| Folder | Purpose |
+| Path | Purpose |
 | --- | --- |
-| `00-Inbox` | Quick capture and daily notes. Nothing stays here long. |
-| `10-Notes` | Permanent, atomic notes — the actual knowledge base. |
-| `20-Projects` | Active work with an outcome and an end date. |
-| `30-References` | Source material: papers, docs, book and article notes. |
-| `90-Attachments` | Images and files. Obsidian saves attachments here automatically. |
-| `Templates` | Note templates used by the core Templates plugin. |
+| `raw/` | Sources, verbatim and immutable. Read once, at ingest. Never edited. |
+| `wiki/index.md` | Catalog of every page. The retrieval layer — read first, always. |
+| `wiki/sources/` | One ~1-page summary per raw item. The citation targets. |
+| `wiki/*.md` | Concept and entity pages, flat. Where knowledge compounds. |
+| `assets/` | Images. |
+| `CLAUDE.md` | The schema: page format, the ingest/query/lint workflows, invariants. |
 
-## Opening the vault
+`CLAUDE.md` is the important file. Without it every session reinvents the structure and
+the wiki drifts. Point an agent at this repo and it reads that first.
 
-Obsidian → *Open folder as vault* → select this directory.
+Using Cursor or Codex instead? `ln -s CLAUDE.md AGENTS.md`.
 
-## Syncing
+## Working in it
 
-Plain git. `.obsidian/workspace.json` and other per-machine state are gitignored,
-so open panes and window layout stay local while settings and plugins sync.
+Open this directory — the repo root — as an Obsidian vault. Ask an agent to ingest,
+query, or lint; the workflows are in `CLAUDE.md`.
+
+There is no changelog file. Git is the log:
 
 ```bash
-git pull --rebase
-git add -A && git commit -m "notes: ..." && git push
+git log --oneline --grep '^ingest:' | head    # recent activity
+git show --stat <sha>                         # what one ingest touched
+git log -S'<claim text>' -- wiki/             # when a claim entered the wiki
 ```
