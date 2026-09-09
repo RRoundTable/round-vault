@@ -38,6 +38,45 @@ on the same page over time.
 | `wiki/` | the agent | rewritten constantly |
 | schema (`CLAUDE.md`) | co-evolved | changes when the workflow does |
 
+```mermaid
+flowchart TD
+    subgraph RAW["raw/ — immutable, human-curated"]
+        R1["source 1"]
+        R2["source 2"]
+        R3["source 3"]
+    end
+
+    subgraph WIKI["wiki/ — agent-owned, revised constantly"]
+        P1["sources/1"]
+        P2["sources/2"]
+        P3["sources/3"]
+        CA["concept page A"]
+        CB["concept page B"]
+    end
+
+    R1 -->|"read once"| P1
+    R2 -->|"read once"| P2
+    R3 -->|"read once"| P3
+
+    P1 --> CA
+    P2 --> CA
+    P3 --> CA
+    P2 --> CB
+    P3 --> CB
+
+    CA --> Q(["query"])
+    CB --> Q
+
+    SCHEMA["CLAUDE.md — the schema<br/>governs how wiki/ is structured"] -.-> WIKI
+```
+
+What the table cannot show is the shape of the edges, which is where the argument lives.
+Each source is read **once**, on one edge, and never again. Every arrow after that points
+into the compiled layer. And concept page A has three sources fanning into it — that
+fan-in *is* the compounding: A ends up holding a synthesis no single source contains, and
+no query has to reassemble it. A query touches only the bottom layer; it never reaches back
+into `raw/`.
+
 The immutability of `raw/` is load-bearing, not hygiene. It keeps ground truth from
 blurring with interpretation, which is what makes the wiki **recompilable** (throw the
 wiki away and rebuild it), **verifiable** (every claim traces to an untouched artifact),
