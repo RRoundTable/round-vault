@@ -106,6 +106,27 @@ as instruction tuning and reasoning improved — but *the need to specify goals,
 constraints, context, and evaluation did not disappear*. The expectation is the same
 shape here: the tricks get absorbed, the interface does not.
 
+Internalization already has one measurement behind it. ThetaEvolve's complaint about
+AlphaEvolve is that it is "a pure inference system that models cannot internalize the
+evolving strategies"; adding test-time RL produces checkpoints that make **faster progress
+on unseen tasks**, i.e. the search strategy moved into the weights
+([[harness-survey-arxiv-abstracts]]). Hyperagents reports the same thing at the meta level —
+persistent memory and performance tracking, learned once, transferring across domains and
+accumulating across runs ([[evolutionary-program-search]]).
+
 The cautionary evidence cuts against reading this too optimistically. STOP improved
 downstream performance on GPT-4 and degraded it on weaker models; harness quality is
 downstream of model quality, not a substitute for it. See [[self-improving-harness]].
+
+## Outside coding, the harness barely exists
+
+The convergence above is a coding-agent phenomenon. Continual Harness states the gap plainly:
+coding harnesses like Claude Code and OpenHands wrap models with tools, memory and planning,
+but **no equivalent exists for embodied agents' long-horizon, partially-observable
+decision-making** ([[harness-survey-arxiv-abstracts]]).
+
+Hyperagents explains why that asymmetry is structural rather than a matter of effort. Harness
+self-improvement compounds in coding because *evaluating* and *self-modifying* are both coding
+tasks, so gains in the task skill are gains in the improvement skill — an alignment that does
+not hold anywhere else ([[evolutionary-program-search]]). Coding agents got good harnesses
+first for the same reason they can improve them.

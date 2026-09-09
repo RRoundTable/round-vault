@@ -45,6 +45,15 @@ unless something specifically removes it. This vault takes the identical positio
 `raw/` immutability and on deriving the catalog instead of regenerating it — additions and
 targeted revisions compound, wholesale rewrites erode.
 
+ACE reports +10.6% on agents and +8.6% on finance with reduced adaptation latency and
+rollout cost, and two results the survey omits ([[harness-survey-arxiv-abstracts]]). It
+adapts **without labeled supervision**, using natural execution feedback alone — which is
+what makes it deployable on tasks that have no training set. And on the AppWorld
+leaderboard it matches the top production-level agent on the overall average while
+*surpassing* it on the harder test-challenge split, using a smaller open-source model. A
+better-maintained context substituting for a bigger model is the cleanest evidence available
+that this layer is worth engineering.
+
 That ACE learns its entries from rollouts is what moves it toward self-managed memory. But
 its update rules and workflow are still handcrafted, which is the opening for the next
 step.
@@ -72,6 +81,18 @@ $s_k = \text{crossover}(\tau, \mathcal{H}_{k-1})$. A base-level context engineer
 executes it and learns the context function from rollout feedback,
 $c_k = \text{engineer}(\tau, s_k; c_{k-1}^*, \mathcal{R}_k)$.
 
+MCE is explicitly a critique of ACE's shape, and says so: prior CE methods rely on
+"rigid generation-reflection workflows and predefined context schemas" that "impose
+structural biases and restrict context optimization to a narrow, intuition-bound design
+space" ([[harness-survey-arxiv-abstracts]]). It reports 5.6–53.8% relative improvement over
+prior agentic CE methods across five domains, mean 16.9%.
+
+The disagreement is real and worth not smoothing over. ACE's fixed itemized schema is what
+*prevents* collapse — determinism in the merge is the whole defense. MCE gives that up for a
+larger design space and relies on the outer validation loop to catch degradation instead.
+Whether free-form skills reintroduce brevity bias by another route is not something either
+abstract settles.
+
 Where ACE fixes a heuristic structure for context, MCE uses **free-form skills** and lets
 the structure evolve. The implementation is the part worth stealing: a context function is
 just **a directory of files** — `skill.md` for the static part, context and data rollouts
@@ -80,6 +101,30 @@ environment with the standard tool set
 $\mathcal{T}=\{\texttt{Read},\texttt{Write},\texttt{Edit},\texttt{Bash},\texttt{Glob},\texttt{Grep},\texttt{TodoWrite}\}$.
 No special optimizer machinery; the filesystem is the data structure and a coding agent is
 the optimizer. Same bet as [[harness]]'s file-system-as-memory pattern.
+
+## Over-compression is the recurring enemy
+
+Three systems on three different rungs of the ladder name the same failure, which is the
+strongest sign it is structural rather than incidental:
+
+| System | Name for it | Setting |
+| --- | --- | --- |
+| ACE | brevity bias / context collapse | maintaining an agent's playbook |
+| Meta-Harness | "text optimizers compress feedback too aggressively" | optimizing harness code |
+| [[llm-wiki-pattern]] | denormalized cache with no invalidation | maintaining a knowledge base |
+
+Meta-Harness's version is the most direct: it argues existing text optimizers are *unsuited*
+to harness search because they summarize feedback before the proposer sees it, and its fix is
+to give the agent filesystem access to raw traces, source and scores so it can `grep` for
+what it needs ([[harness-survey-arxiv-abstracts]]). Same fix as ACE's itemized bullets and
+the wiki's immutable `raw/`: **do not let a summarizing step stand between the evidence and
+the thing that has to act on it.**
+
+The general form: summarization is lossy in a direction you cannot predict at summarization
+time, because which detail matters is determined by the *next* decision, not the current one.
+So the summary is useful as an index and dangerous as a replacement. AHE's layered
+drill-down — per-task reports over raw traces, with the raw traces still reachable — is the
+resolution the harness literature converges on ([[self-improving-harness]]).
 
 ## The mechanism/artifact split generalizes
 

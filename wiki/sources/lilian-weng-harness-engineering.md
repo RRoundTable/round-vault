@@ -120,7 +120,17 @@ two-split acceptance rule.
 
 Bottleneck 1 and the benchmark appendix are covered on [[auto-research-evaluation]],
 which also carries Trehan & Chopra's six observed failure modes; bottleneck 5 is
-[[harness-reward-hacking]].
+[[harness-reward-hacking]]. The evolutionary lineage — AlphaEvolve through DGM and
+Hyperagents — is on [[evolutionary-program-search]].
+
+## Reliability of the survey
+
+All 29 arXiv references were fetched and verified: every ID resolves and every title matches
+the description given. Where the survey's compression loses something —
+Self-Harness presented as one benchmark rather than three, AHE's system-prompt ablation
+omitted, Hyperagents reduced to a clause, one figure caption naming the wrong model — the
+details are recorded on [[harness-survey-arxiv-abstracts]], which also holds the headline
+numbers the survey leaves out.
 
 ## Note on this capture
 

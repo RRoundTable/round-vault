@@ -54,6 +54,13 @@ tool description, tool implementation, middleware, skill, sub-agent configuratio
 long-term memory): the editable surface is enumerated positively. Anything not listed is
 not editable. That is a whitelist, and whitelists are what make the boundary auditable.
 
+Two supporting details from the primaries ([[harness-survey-arxiv-abstracts]]). AHE describes
+its components as **revertible**, not just traceable — a stronger property, and the one that
+makes a bad edit recoverable rather than merely attributable. And DGM, the most aggressive
+system here (an agent rewriting its own repository), reports that all experiments ran with
+**sandboxing and human oversight**. That the authors state it in the abstract is itself the
+norm being established: self-modifying harness work is expected to declare its containment.
+
 ## Evidence-bound edits
 
 AHE's second control is on the shape of a change rather than its target. Every edit is a
@@ -81,8 +88,28 @@ Held-in alone would accept any edit that special-cases the failures it was shown
 harness equivalent of hard-coding test answers. The held-out split is what distinguishes a
 mechanism from a patch, and AHE's transfer result is the positive version of the same
 test: its frozen evolved harness moved from Terminal-Bench-2 to SWE-bench-verified without
-further evolution, which is evidence it encoded engineering experience rather than
-benchmark structure.
+further evolution — topping aggregate success at **12% fewer tokens** than the seed, plus
+**+5.1 to +10.1pp** across three other model families — which is evidence it encoded
+engineering experience rather than benchmark structure
+([[harness-survey-arxiv-abstracts]]).
+
+AHE's ablation sharpens what to be suspicious of. The gains localized to tools, middleware
+and long-term memory rather than the system prompt: "factual harness structure transfers
+while prose-level strategy does not" ([[self-improving-harness]]). Prose is the cheapest
+surface for a loop to edit and the one whose apparent gains are least likely to be real —
+so an evolution run whose accepted edits are mostly system-prompt rewrites is showing you the
+signature of benchmark fitting, not a mechanism.
+
+## An audit that sits outside everything
+
+ScientistOne's **CoE Audit** is the clearest existing example of the shape this page argues
+for: four integrity checks — score verification, specification violation, reference
+verification, method–code alignment — applied uniformly to every system rather than
+self-reported. What makes it hack-resistant is that each check tests a property that must
+hold *regardless of the claim being made*, so passing it requires no judgment about quality
+and offers no gradient to game. The measured baseline failure rates are severe enough
+(hallucinated references up to 21%, score verification passing in as few as 42% of papers)
+to make the case that this layer is not optional. See [[auto-research-evaluation]].
 
 ## Why this is unsolved
 

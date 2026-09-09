@@ -38,12 +38,22 @@ auto-research loop, measured by producing papers. Weng's objection is that the m
 the goal come apart: **a system can write a plausible manuscript while carrying fabricated
 citations, implementation drift, or weak results.**
 
-Trehan & Chopra (2026) tested idea-to-paper with minimal scaffolding — `read_file`,
-`write_file`, `llm_search`, `list_files`, one workspace per idea — across world models,
-multi-agent RL, and AI safety, each seeded with 45–50 high-quality documents. The scale of
-the result is itself the finding: of the ideas generated, human experts selected four to
-run through the full pipeline, and **one** was executed into a paper. Six recurring failure
-modes:
+Trehan & Chopra (2026) — *Why LLMs Aren't Scientists Yet* — tested idea-to-paper with
+minimal scaffolding: `read_file`, `write_file`, `llm_search`, `list_files`, one workspace per
+idea, a pipeline of **six** LLM agents mapped to stages of the scientific workflow, across
+world models, multi-agent RL, and AI safety, each seeded with 45–50 high-quality documents.
+The scale of the result is itself the finding: human experts selected four ideas to run
+through the full pipeline, **three failed during implementation or evaluation**, and one
+completed.
+
+That one was **accepted to Agents4Science 2025** — an experimental venue requiring AI systems
+as first authors — passing both human and multi-AI review
+([[harness-survey-arxiv-abstracts]]). Both halves of that matter. A 1-in-4 completion rate is
+the honest number for autonomous research today; and the surviving paper cleared peer review,
+which means review did not detect whatever the other three attempts died of. Publication is
+not the discriminating signal.
+
+Six recurring failure modes (the paper's own name for over-optimism is "overexcitement"):
 
 | Failure mode | What it looks like |
 | --- | --- |
@@ -57,15 +67,53 @@ modes:
 Two of these are harness problems with known fixes. Memory degradation is what
 file-system-as-persistent-memory exists for ([[harness]]), and it is the clearest case in
 this literature of a failure mode that is *architectural* rather than a capability gap.
-Implementation drift is what ScientistOne's verifiability-first design targets, requiring
-every claim — citation, numerical, methodological, conclusion — to trace to an evidence
-source, audited by Chain-of-Evidence checks.
+Implementation drift is what ScientistOne's verifiability-first design targets — see below.
 
 The other four are not harness problems. Over-optimism is the one to watch, because it is
 the failure mode that *corrupts the evaluator*: Bubeck et al. (2025) describe the same
 pattern as "p-hacking and eureka-ing", where models apply "numerical duct tape" and declare
 victory while the signal is still noise. A loop whose scorer is prone to this cannot be
 fixed by adding more of it.
+
+## CoE Audit: measuring the thing instead of the manuscript
+
+ScientistOne (Meng et al. 2026) is filed in the survey as "verifiability is the central
+design constraint," which undersells it badly. Its real contribution to this page is
+**CoE Audit** — four post-hoc integrity checks applied *uniformly to all systems*, not just
+its own ([[harness-survey-arxiv-abstracts]]):
+
+- score verification
+- specification violation
+- reference verification
+- method–code alignment
+
+Run across 75 papers from five systems on five frontier research tasks, **every baseline
+exhibited at least one systematic failure mode**:
+
+| Check | Baseline range |
+| --- | --- |
+| hallucinated references | up to **21%** |
+| score verification passes | as few as **42%** of papers |
+| method–code alignment | **20–80%** |
+
+ScientistOne itself: **0/337** hallucinated references, **12/12** score verification,
+**14/15** method–code alignment, matching or exceeding human experts on all five tasks, and
+taking gold medals on MLE-Bench tasks where baselines fail entirely.
+
+This is the most important number set on the page, because it converts Weng's qualitative
+warning — a system can produce a plausible manuscript with fabricated citations and drifted
+methods — into a measured rate. **One in five references hallucinated, and fewer than half
+of papers with reproducible scores**, in systems whose outputs look professional. Surface
+evaluation of auto-research output is not weakly informative; it is close to uninformative.
+
+The methodological move worth stealing is that CoE Audit checks *properties that must hold
+regardless of the claim* — does this citation exist, does the reported number reproduce, does
+the described method match the code. None requires judging whether the research is good, so
+none inherits the fuzzy-evaluator problem. It is a partial answer to bottleneck 1: you cannot
+verify taste, but you can verify integrity, and integrity failures turn out to be endemic
+enough that checking them first is most of the available value. It is also the right shape
+for a verifier that has to survive an adversarial agent — external, uniform, and outside the
+loop being optimized ([[harness-reward-hacking]]).
 
 ## Benchmarks
 
