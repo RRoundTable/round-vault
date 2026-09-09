@@ -182,6 +182,33 @@ worth checking — contradictions, superseded claims, concepts that deserve a pa
 that should be split — is semantic. Lint is an LLM workflow with a few shell commands in
 front of it, not a script.
 
+## Convergent designs
+
+The same discipline shows up in agent memory research that has nothing to do with wikis.
+**ACE** treats an agent's context as an evolving playbook of `(identifier, description)`
+bullets and forbids its curator from rewriting the whole blob, because iterative rewrites
+produce *context collapse* (detail shed until a specific playbook has become a generic
+one) and *brevity bias* (each rewrite looks like an improvement because shorter reads
+better, and the ratchet turns one way only). Its fix is incremental itemized updates merged
+by deterministic logic ([[agentic-context-engineering]]).
+
+That is this vault's rule about not regenerating the catalog, arrived at from the opposite
+end. The shared claim: **additions and targeted revisions compound; wholesale rewrites
+erode.** It is also the reason `raw/` is immutable and the reason lint proposes fixes
+rather than rewriting pages.
+
+Where the two differ is what the entries hold — ACE's bullets are procedural insights
+mined from the agent's own rollouts and consumed by that same agent, while wiki pages are
+declarative knowledge compiled from external sources for future sessions and a human
+reader. That two designs with different content, different producers and different readers
+land on the same maintenance rule is mild evidence the rule is real rather than an artifact
+of either one.
+
+MCE goes one step further and separates the *mechanism* from the *artifact* — optimizing
+the context-management skill at a meta level and the context itself at a base level. The
+split maps exactly onto `CLAUDE.md` versus `wiki/`, which is why they are separate files
+that change on different clocks.
+
 ## Lineage
 
 Vannevar Bush's Memex (1945): a private, curated document store with associative trails,
