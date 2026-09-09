@@ -8,6 +8,11 @@ what matters. Do not ask the user to write pages; that is your job.
 
 Everything here is in **English**.
 
+This file is the **rules**. The reasoning behind them lives in [[llm-wiki-pattern]] —
+read that when a rule looks wrong or you are about to change the design, not every
+session. Keep it that way: if you find yourself writing a paragraph of justification
+here, it belongs on that page.
+
 ## Layout
 
 ```
@@ -19,15 +24,12 @@ wiki/
 assets/             images
 ```
 
-`wiki/` is flat on purpose. Obsidian resolves `[[mcp]]` no matter which folder the page
-sits in, so folders buy nothing the `category:` and `type:` fields don't already provide —
-and a field is cheap to change where a directory tree is not. A page that turns out to be
-two topics gets recategorized with one edit. Do not create `concepts/`, `entities/`, or
-`analyses/` subfolders. `sources/` is separate only because those pages are 1:1 with
-`raw/`.
+`wiki/` is flat: `category:` and `type:` do the grouping, not directories. Do not create
+`concepts/`, `entities/`, or `analyses/` subfolders. `sources/` is separate only because
+those pages are 1:1 with `raw/`.
 
-There is no `log.md`; git is the log (see [Commits](#commits)). `index.md` exists but is
-**not** a page catalog — that is derived (see [Finding pages](#finding-pages)).
+No `log.md` — git is the log (see [Commits](#commits)). `index.md` is a map, not a page
+catalog; the catalog is derived (see [Finding pages](#finding-pages)).
 
 ## Page format
 
@@ -57,16 +59,11 @@ url: https://gist.github.com/karpathy/442a6bf555914893e9891c11519de94f
 
 `type` is `page`, `source`, or `index` (only `wiki/index.md` is the last).
 
-`summary` is the retrieval hook — it is what a future session reads to decide whether to
-open this page, so write it to answer *what questions does this page settle?* rather than
-to describe the page. One line, always double-quoted (summaries tend to contain colons).
-
-It overlaps with the page's opening lede, and that is deliberate — the two have different
-readers. `summary` is a ~15-word key an agent greps to decide whether to open the file at
-all; the lede is prose that orients a human who already opened it, and it is what Obsidian
-shows on hover-preview and in search results. Writing one to serve both jobs makes it bad
-at both. What they must not do is *disagree*: if the lede has moved on and the summary
-hasn't, the catalog is quietly lying. Lint checks for that.
+`summary` is the retrieval hook: what a future session greps to decide whether to open
+this page. Write it to answer *what questions does this page settle?*, not to describe
+the page. One line, always double-quoted (summaries tend to contain colons). It may
+overlap the page's lede — different readers, different jobs — but the two must never
+*disagree*.
 
 `category` and `tags` are lowercase and hyphenated, and both are **reused, not invented**.
 There is no fixed list of either; the live set is whatever the pages currently use:
@@ -79,8 +76,9 @@ head -n 12 wiki/*.md wiki/sources/*.md | grep '^tags:'     | sort -u
 (`head -n 12` is the frontmatter window. Grepping whole files also matches the YAML
 examples quoted inside page bodies, which is how you get phantom categories.)
 
-Check that before adding a new value. A new category is fine when nothing fits — just
-make it a deliberate choice rather than a synonym for one that already exists.
+Check that before adding a new value. A new category is fine when nothing fits — make it
+a deliberate choice, not a synonym for an existing one, and add a row for it in
+`index.md`.
 
 Body conventions:
 
@@ -97,27 +95,21 @@ Body conventions:
 
 ## Finding pages
 
-Two different things, and keeping them separate is the whole design:
+Two things, kept separate:
 
-- **`wiki/index.md` is the map.** One row per topic area: what belongs in it, where to
-  start, what it still lacks. It answers *where does a new page go* and *what don't we
-  know yet*. It does not list pages, so it does not go stale as pages change.
-- **The catalog is derived.** Page-level detail — every page with its category and
-  summary — comes from a command, so it is always current.
-
-Read `index.md` when you need orientation or are deciding where a new page belongs. Run
-the catalog when you need to know what actually exists:
+- **`wiki/index.md` is the map** — one row per topic area: what belongs in it, where to
+  start, what it lacks. Read it for orientation and to decide where a new page goes.
+- **The catalog is derived** — every page with its category and summary, from a command,
+  so it is always current. Run it to see what actually exists:
 
 ```bash
 head -n 12 wiki/*.md wiki/sources/*.md | grep -E '^(==>|category:|summary:)'
 ```
 
-That is the first command of most sessions. It prints every page with its category and
-one-line summary, always current, because there is no second copy to fall behind.
+That is the first command of most sessions.
 
-The division of labour is: **a property of one page lives in that page's frontmatter; a
-statement about the collection lives in `index.md`.** Never copy a page's summary into
-`index.md` — that is the drift that got the old catalog deleted.
+**A property of one page lives in that page's frontmatter; a statement about the
+collection lives in `index.md`.** Never copy a page's summary into `index.md`.
 
 Narrow it when you already know the shape of the question:
 
@@ -128,22 +120,17 @@ grep -rli --include='*.md' 'speculative decoding' wiki/           # full text
 grep -rl  --include='*.md' '\[\[mcp\]\]' wiki/                     # what links here
 ```
 
-`category:` is a single value, so it matches exactly. `tags:` is an inline array, so a
-tag match has to anchor on the surrounding `[`, `,`, `]` or space. **Do not reach for
-`grep -w`** — a hyphen is a word boundary, so `grep -w memory` also matches the page
-tagged `context-memory`. That is the one place a naive pattern silently returns wrong
-pages rather than no pages.
+`category:` is a single value and matches exactly. `tags:` is an inline array, so anchor
+on the surrounding `[`, `,`, `]` or space. **Do not use `grep -w`** — a hyphen is a word
+boundary, so `grep -w memory` also matches a page tagged `context-memory`. That is the
+one pattern here that silently returns *wrong* pages rather than none.
 
-For browsing tags by hand, Obsidian's tag pane is better than any of this: it is exact,
-already enabled, and it lists counts.
+Use the catalog to *choose* pages and grep to *catch what it missed*: a one-line summary
+won't mention everything a page covers, so grep the full text before concluding the wiki
+has no answer.
 
-Use the derived catalog to *choose* pages and grep to *catch what it missed*. A summary
-is one line and will not mention everything a page covers, so when a question doesn't map
-cleanly onto a summary, grep the full text before concluding the wiki has no answer.
-
-There is deliberately no saved *view* file (no `.base`). A saved query would only serve
-the human anyway — reading a `.base` gives you the query, not the results. For browsing
-inside Obsidian, use `index.md`, the tag pane, the graph, and search.
+For browsing by hand, use Obsidian — `index.md`, the tag pane, the graph, and search.
+There is no saved `.base` view.
 
 ## Workflows
 
@@ -224,10 +211,9 @@ head -n 12 wiki/*.md wiki/sources/*.md | grep '^category:' | sort | uniq -c | so
 git log -1 --format=%cd -- <page>
 ```
 
-A page missing `category:` or `summary:` is invisible to the catalog — that is the one
-failure mode the derived approach has, and it is exactly checkable, which a stale
-hand-written index never was. Categories with a count of 1 are worth a look: often a
-synonym of an existing one rather than a genuinely new bucket.
+A page missing `category:` or `summary:` is invisible to the catalog — the one failure
+mode of the derived approach, and exactly checkable. A category used once is often a
+synonym of an existing one.
 
 Broken `[[links]]` come from Obsidian's Unresolved links pane, which is authoritative;
 don't reimplement it with grep.
@@ -247,9 +233,8 @@ Report findings, propose the fixes, and apply them only once the user approves.
 
 ## Commits
 
-The commit log replaces `log.md`, and it's better: it records what actually changed
-rather than what I claim changed. Subject is a prefix plus the source or question;
-body lists the touched pages.
+The commit log replaces `log.md`. Subject is a prefix plus the source or question; body
+lists the touched pages.
 
 ```
 ingest: MCP specification
@@ -270,12 +255,11 @@ git log -S'<claim text>' -- wiki/             # when a claim entered the wiki
 
 ## Invariants
 
-- **Never edit anything under `raw/`.** Immutability is what keeps the wiki
-  recompilable, verifiable, and auditable — ground truth must never blur with
-  interpretation. If a source is wrong, say so on the wiki page, don't fix the source.
+- **Never edit anything under `raw/`.** If a source is wrong, say so on the wiki page;
+  don't fix the source. (Why: [[llm-wiki-pattern]].)
 - Everything is written in **English**.
 - Every page in `wiki/` has frontmatter, including `category:` and `summary:` — those
   two fields are what makes it findable at all.
-- `index.md` has one row per topic area, never one per page. If you are adding a row
-  because you added a page, stop: the catalog already covers it.
+- `index.md` has one row per topic area, never one per page. Adding a row because you
+  added a page means you want the catalog, which is derived.
 - New raw files are named `YYYY-MM-DD-<slug>.<ext>`.

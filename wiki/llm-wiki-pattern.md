@@ -105,6 +105,29 @@ understanding changes rather than when a file does. The rule that falls out of i
 a property of one page lives in that page's frontmatter, and a statement about the
 collection lives in the index.
 
+## Two summaries, on purpose
+
+Every page states its point twice: once as `summary:` frontmatter, once as the lede
+paragraph under the title. That looks like the duplication this design otherwise refuses,
+and it isn't, because the two have different readers and different lengths.
+
+`summary` is a ~15-word retrieval key. An agent greps it to decide whether to open the
+file *at all*, so it is written to answer *what questions does this page settle?* The
+lede is prose for someone who already opened the page — and it is what Obsidian shows on
+hover-preview and in search results, which is how a human browses without any index. One
+string cannot do both jobs: tuned for retrieval it reads as a stub, tuned for reading it
+is too long to scan forty of.
+
+The distinction that matters is **same function versus same subject**. `index.md`'s old
+per-page rows and the pages themselves performed the *same function* — cataloguing — in
+two places, so one was redundant and drifted. A summary and a lede perform *different
+functions* on the same subject. Collapsing those degrades both; the correct control is
+not deduplication but a consistency check, so lint verifies they still agree rather than
+demanding there be only one.
+
+The general rule: duplication is a problem when two copies answer the same question, not
+when two artifacts serve different readers.
+
 ## What ingest actually costs
 
 The fan-out is the whole mechanism. A source landing in `raw/` produces:
