@@ -60,6 +60,13 @@ url: https://gist.github.com/karpathy/442a6bf555914893e9891c11519de94f
 open this page, so write it to answer *what questions does this page settle?* rather than
 to describe the page. One line, always double-quoted (summaries tend to contain colons).
 
+It overlaps with the page's opening lede, and that is deliberate — the two have different
+readers. `summary` is a ~15-word key an agent greps to decide whether to open the file at
+all; the lede is prose that orients a human who already opened it, and it is what Obsidian
+shows on hover-preview and in search results. Writing one to serve both jobs makes it bad
+at both. What they must not do is *disagree*: if the lede has moved on and the summary
+hasn't, the catalog is quietly lying. Lint checks for that.
+
 `category` and `tags` are lowercase and hyphenated, and both are **reused, not invented**.
 There is no fixed list of either; the live set is whatever the pages currently use:
 
@@ -77,6 +84,9 @@ make it a deliberate choice rather than a synonym for one that already exists.
 Body conventions:
 
 - `# Title` as the first line, matching the filename.
+- **A lede paragraph directly under the title**, before any `##` section. It must stand
+  alone: someone who reads only the lede should come away with the point of the page.
+  No page opens straight into a section heading.
 - Filenames are lowercase and hyphenated: `tool-use.md`, `context-window.md`.
 - Link generously with `[[wikilinks]]`. A link to a page that doesn't exist yet is a
   legitimate marker of a gap — it shows up in Obsidian's Unresolved links pane.
@@ -176,6 +186,12 @@ for f in wiki/*.md wiki/sources/*.md; do
   head -n 12 "$f" | grep -q '^category:' || echo "no category: $f"
 done
 
+# pages that open straight into a section, with no lede
+for f in wiki/*.md wiki/sources/*.md; do
+  awk 'NR>1 && /^---$/{fm++; next} fm==2 && /^# /{t=1; next}
+       t && NF { if ($0 ~ /^#/) print FILENAME": no lede"; exit }' "$f"
+done
+
 # categories used only once — often a synonym of an existing one
 head -n 12 wiki/*.md wiki/sources/*.md | grep '^category:' | sort | uniq -c | sort -n
 
@@ -198,7 +214,8 @@ Then do the pass only an LLM can do — read the pages and look for:
 - concepts recurring across several sources that still have no page of their own
 - pages that have grown to cover two ideas and should be split
 - pages that ought to link to each other and don't
-- summaries that no longer match what the page grew into
+- summaries that no longer match what the page grew into, or contradict its own lede
+- pages that open straight into a `##` section with no lede
 
 Report findings, propose the fixes, and apply them only once the user approves.
 
