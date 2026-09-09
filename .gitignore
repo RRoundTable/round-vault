@@ -1,0 +1,13 @@
+# Obsidian per-machine state (do not sync across devices)
+.obsidian/workspace.json
+.obsidian/workspace-mobile.json
+.obsidian/cache
+.obsidian/graph.json
+.obsidian/hotkeys.json
+
+# Obsidian trash + plugin data
+.trash/
+.obsidian/plugins/*/data.json
+
+# macOS
+.DS_Store
