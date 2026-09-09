@@ -1,6 +1,8 @@
 ---
 type: source
 tags: [knowledge-base, memory, retrieval, agent-workflow]
+category: context-memory
+summary: "Karpathy's gist proposing an agent-maintained wiki over query-time RAG: three layers (raw/wiki/schema), three operations (ingest/query/lint)."
 raw: raw/2026-09-09-karpathy-llm-wiki-gist.md
 url: https://gist.github.com/karpathy/442a6bf555914893e9891c11519de94f
 ---
@@ -69,7 +71,8 @@ embedding-based RAG infrastructure." `log.md` is chronological and append-only â
 record of ingests, queries, and lint passes, greppable if entries use a consistent
 prefix.
 
-*(This vault keeps `index.md` and drops `log.md`; see [[llm-wiki-pattern]] for why.)*
+*(This vault drops both: `log.md` in favour of git, and `index.md` in favour of deriving
+the catalog from per-page frontmatter. See [[llm-wiki-pattern]] for why.)*
 
 ## Optional pieces
 

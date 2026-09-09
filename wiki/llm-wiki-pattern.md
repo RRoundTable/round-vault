@@ -1,6 +1,8 @@
 ---
 type: page
 tags: [knowledge-base, memory, retrieval, agent-workflow]
+category: context-memory
+summary: "Compile sources into a maintained wiki at ingest rather than retrieving from them at query time, so knowledge compounds on shared pages."
 ---
 
 # LLM wiki pattern
@@ -46,16 +48,52 @@ The schema is the layer people skip and shouldn't. Without it each session reinv
 structure and the wiki drifts into inconsistency — which is exactly the maintenance
 failure the pattern is supposed to solve.
 
-## index.md is the retrieval layer
+## The catalog should be derived, not stored
 
-The catalog — every page, one line each, grouped by category — is what this pattern uses
-*instead of* a vector database. The agent reads it first, decides which two or three
-pages to open, and opens only those. At the scale a personal wiki actually reaches
-(~100 sources), an LLM reading a table of contents beats embedding search, and it
-carries none of the infrastructure.
+The gist's retrieval layer is `index.md`: every page listed with a one-line summary,
+grouped by category, updated on every ingest. The agent reads it first and opens only
+what it points at. The claim is that at the scale a personal wiki reaches (~100 sources),
+an LLM reading a table of contents beats embedding search and carries none of the
+infrastructure ([[karpathy-llm-wiki-gist]]).
 
-It only works if it's maintained, which is why updating it is a step in the ingest
-workflow rather than a periodic cleanup.
+The retrieval argument is right. Storing it in a separate file is not.
+
+A hand-written index is a **denormalized cache with no invalidation**. The one-line
+summary duplicates knowledge that belongs to the page, and the copy can drift from the
+original with nothing forcing anyone to notice. The usual patch is a discipline rule —
+*always update the index in the same commit* — which is a rule that exists solely to
+protect the cache. That's the tell.
+
+The same information normalizes cleanly onto the page it describes:
+
+```yaml
+category: context-memory
+summary: "One line saying what this page is about."
+```
+
+and the catalog becomes a projection over the pages rather than a file:
+
+```bash
+head -n 12 wiki/*.md wiki/sources/*.md | grep -E '^(==>|category:|summary:)'
+```
+
+That output is what `index.md` contained, and it cannot be stale, because there is no
+second copy to fall out of date. The invariant disappears rather than being enforced.
+
+What survives from the original argument is the part that was never really about the
+file. Summaries earn their place because **filenames don't disambiguate** — `ls` says
+`context-window.md` exists, not whether it covers token limits, attention cost, or
+compaction — and because **grep matches strings, not concepts**: a question about how
+agents remember things across sessions won't hit a page that never uses the word
+"remember." Letting a model read a compact list of summaries *is* semantic retrieval;
+it just ships as text in the prompt instead of as a vector store.
+
+What doesn't survive is the file. And one thing genuinely regresses: a derived catalog
+cannot show a category with zero pages, so it can't display a gap the way a hand-written
+"Evaluation — no pages yet" heading could. That turns out to be a fair trade, because a
+fixed category list is the same premature taxonomy as fixed folders, in a different
+costume. Real gaps surface better elsewhere anyway — as unresolved `[[links]]` (concepts
+something actually referenced but nobody wrote) and in the lint pass.
 
 ## What ingest actually costs
 
@@ -63,11 +101,10 @@ The fan-out is the whole mechanism. A source landing in `raw/` produces:
 
 ```
 raw/2026-09-09-mcp-spec.md
-  -> read index.md            what already exists?
-  -> wiki/sources/mcp-spec.md new source page
-  -> wiki/mcp.md              new concept page
+  -> derive catalog           what already exists?
+  -> wiki/sources/mcp-spec.md new source page   (category + summary)
+  -> wiki/mcp.md              new concept page  (category + summary)
   -> wiki/tool-use.md         revised: now links [[mcp]]
-  -> wiki/index.md            new row
   -> commit
 ```
 
@@ -85,18 +122,23 @@ reading.
 
 ## Deviations in this vault
 
-Three, each trading a piece of the gist for something cheaper:
+Four, each trading a piece of the gist for something cheaper:
 
 **Flat `wiki/`, no `concepts/` + `entities/` + `analyses/`.** That split is a taxonomy
 chosen before there is content to taxonomize, and Obsidian resolves `[[mcp]]` regardless
-of folder — so the folders buy nothing that `index.md` and a `type:` field don't.
-Grouping lives where it's cheap to change. `sources/` stays separate because those pages
+of folder — so the folders buy nothing a `category:` field doesn't. Grouping lives where
+it's cheap to change: recategorizing a page is one edit, moving it is a rename plus every
+reference to it. `sources/` stays separate because those pages
 are 1:1 with `raw/` and serve as the citation targets.
 
 **No `log.md`.** Git covers it, and better: a commit records what changed, while a log
 entry records what the agent *claims* changed. The two diverge exactly when it matters.
 `git log --grep '^ingest:'` reconstructs the timeline; `git log -S'<claim>'` finds when a
 claim entered — which no append-only log can answer at all.
+
+**No `index.md`.** The catalog is derived from `category:` and `summary:` frontmatter by
+one shell command, so it can't drift; `wiki/catalog.base` renders the same data as a
+table for human browsing. See above.
 
 **No lint script.** Obsidian's Unresolved links pane already covers broken references,
 and `ls raw/` against `ls wiki/sources/` covers un-ingested sources. Everything else
