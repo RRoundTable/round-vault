@@ -137,8 +137,8 @@ entry records what the agent *claims* changed. The two diverge exactly when it m
 claim entered — which no append-only log can answer at all.
 
 **No `index.md`.** The catalog is derived from `category:` and `summary:` frontmatter by
-one shell command, so it can't drift; `wiki/catalog.base` renders the same data as a
-table for human browsing. See above.
+one shell command, so it can't drift, and there is no saved view file either — a stored
+query is one more thing to carry, and it can't answer anything an agent asks. See above.
 
 **No lint script.** Obsidian's Unresolved links pane already covers broken references,
 and `ls raw/` against `ls wiki/sources/` covers un-ingested sources. Everything else

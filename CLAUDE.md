@@ -15,7 +15,6 @@ raw/                sources, verbatim and immutable — you never edit these
 wiki/
   sources/          one page per raw item; the citation targets
   *.md              concept and entity pages, flat
-  catalog.base      Obsidian table view over the pages (for humans, not for you)
 assets/             images
 ```
 
@@ -119,9 +118,10 @@ Use the derived catalog to *choose* pages and grep to *catch what it missed*. A 
 is one line and will not mention everything a page covers, so when a question doesn't map
 cleanly onto a summary, grep the full text before concluding the wiki has no answer.
 
-`wiki/catalog.base` renders the same information as a sortable table inside Obsidian.
-That view is for the human — a `.base` file is a query definition, so reading it gives
-you the query, not the results. Use the command above instead.
+There is deliberately no saved view file (no `.base`, no `index.md`). A saved view would
+only serve the human anyway — a `.base` file is a query definition, so reading it gives
+you the query, not the results. For browsing inside Obsidian, use the tag pane, the graph,
+and search; for anything you need the *answer* to, use the commands above.
 
 ## Workflows
 

@@ -12,7 +12,6 @@ pages, and keeps them current. You curate sources and ask questions; the agent w
 | `raw/` | Sources, verbatim and immutable. Read once, at ingest. Never edited. |
 | `wiki/sources/` | One ~1-page summary per raw item. The citation targets. |
 | `wiki/*.md` | Concept and entity pages, flat. Where knowledge compounds. |
-| `wiki/catalog.base` | Obsidian table view over every page. For browsing. |
 | `assets/` | Images. |
 | `CLAUDE.md` | The schema: page format, the ingest/query/lint workflows, invariants. |
 
@@ -33,7 +32,8 @@ catalog is derived on demand — so it can't go stale:
 head -n 12 wiki/*.md wiki/sources/*.md | grep -E '^(==>|category:|summary:)'
 ```
 
-Open `wiki/catalog.base` for the same thing as a sortable table in Obsidian.
+Inside Obsidian, browse with the tag pane and graph instead — there is no saved view
+file to keep in step.
 
 There is no changelog file either. Git is the log:
 
