@@ -10,6 +10,7 @@ pages, and keeps them current. You curate sources and ask questions; the agent w
 | Path | Purpose |
 | --- | --- |
 | `raw/` | Sources, verbatim and immutable. Read once, at ingest. Never edited. |
+| `wiki/index.md` | The map: topic areas, entry points, known gaps. One row per area. |
 | `wiki/sources/` | One ~1-page summary per raw item. The citation targets. |
 | `wiki/*.md` | Concept and entity pages, flat. Where knowledge compounds. |
 | `assets/` | Images. |
@@ -25,15 +26,17 @@ Using Cursor or Codex instead? `ln -s CLAUDE.md AGENTS.md`.
 Open this directory — the repo root — as an Obsidian vault. Ask an agent to ingest,
 query, or lint; the workflows are in `CLAUDE.md`.
 
-There is no stored index. Each page carries its own `category:` and `summary:`, and the
-catalog is derived on demand — so it can't go stale:
+`wiki/index.md` is the map — one row per topic area, with what belongs in it, where to
+start, and what it still needs. It never lists individual pages, so it doesn't go stale.
+
+Page-level detail is derived instead, from each page's own `category:` and `summary:`:
 
 ```bash
 head -n 12 wiki/*.md wiki/sources/*.md | grep -E '^(==>|category:|summary:)'
 ```
 
-Inside Obsidian, browse with the tag pane and graph instead — there is no saved view
-file to keep in step.
+The split: a property of one page lives in that page's frontmatter; a statement about
+the collection lives in the index.
 
 There is no changelog file either. Git is the log:
 

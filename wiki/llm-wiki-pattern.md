@@ -88,12 +88,22 @@ agents remember things across sessions won't hit a page that never uses the word
 "remember." Letting a model read a compact list of summaries *is* semantic retrieval;
 it just ships as text in the prompt instead of as a vector store.
 
-What doesn't survive is the file. And one thing genuinely regresses: a derived catalog
-cannot show a category with zero pages, so it can't display a gap the way a hand-written
-"Evaluation — no pages yet" heading could. That turns out to be a fair trade, because a
-fixed category list is the same premature taxonomy as fixed folders, in a different
-costume. Real gaps surface better elsewhere anyway — as unresolved `[[links]]` (concepts
-something actually referenced but nobody wrote) and in the lint pass.
+What doesn't survive is the *catalog* function of the file. Three things do, and they
+are exactly what a projection cannot express:
+
+- **Absence.** A derived catalog lists categories that have pages. It cannot show
+  "Evaluation — nothing here yet", which is a fact about the topic, not about any page.
+- **Curation.** Where to start, which page is central, what order to read in. A
+  projection weights every page equally because it has nothing to weight them by.
+- **Intent.** What this area still needs, in sources or open questions. Nothing in the
+  existing pages can imply what is missing from them.
+
+So `index.md` comes back, but as a **map, not a catalog**: one row per topic area, never
+one per page. That inversion is what matters. A per-page row duplicates the page and
+drifts; a per-area row describes the shape of the subject, which changes when your
+understanding changes rather than when a file does. The rule that falls out of it:
+a property of one page lives in that page's frontmatter, and a statement about the
+collection lives in the index.
 
 ## What ingest actually costs
 
@@ -136,9 +146,12 @@ entry records what the agent *claims* changed. The two diverge exactly when it m
 `git log --grep '^ingest:'` reconstructs the timeline; `git log -S'<claim>'` finds when a
 claim entered — which no append-only log can answer at all.
 
-**No `index.md`.** The catalog is derived from `category:` and `summary:` frontmatter by
-one shell command, so it can't drift, and there is no saved view file either — a stored
-query is one more thing to carry, and it can't answer anything an agent asks. See above.
+**`index.md` is a map, not a catalog.** Page-level detail is derived from `category:`
+and `summary:` frontmatter by one shell command, so it can't drift. The index holds only
+what a projection can't express — topic areas including empty ones, entry points, and
+known gaps — so it stays one row per area and doesn't grow with the wiki. There is no
+saved view file (`.base`) either: a stored query serves only the human, and reading one
+gives an agent the query rather than the results. See above.
 
 **No lint script.** Obsidian's Unresolved links pane already covers broken references,
 and `ls raw/` against `ls wiki/sources/` covers un-ingested sources. Everything else

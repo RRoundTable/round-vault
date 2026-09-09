@@ -13,6 +13,7 @@ Everything here is in **English**.
 ```
 raw/                sources, verbatim and immutable — you never edit these
 wiki/
+  index.md          the map: one row per topic area, NOT per page
   sources/          one page per raw item; the citation targets
   *.md              concept and entity pages, flat
 assets/             images
@@ -25,8 +26,8 @@ two topics gets recategorized with one edit. Do not create `concepts/`, `entitie
 `analyses/` subfolders. `sources/` is separate only because those pages are 1:1 with
 `raw/`.
 
-There is no `log.md` and no `index.md`. Git is the log (see [Commits](#commits)),
-and the catalog is derived rather than stored (see [Finding pages](#finding-pages)).
+There is no `log.md`; git is the log (see [Commits](#commits)). `index.md` exists but is
+**not** a page catalog — that is derived (see [Finding pages](#finding-pages)).
 
 ## Page format
 
@@ -54,7 +55,7 @@ url: https://gist.github.com/karpathy/442a6bf555914893e9891c11519de94f
 ---
 ```
 
-`type` is `page` or `source`.
+`type` is `page`, `source`, or `index` (only `wiki/index.md` is the last).
 
 `summary` is the retrieval hook — it is what a future session reads to decide whether to
 open this page, so write it to answer *what questions does this page settle?* rather than
@@ -96,15 +97,27 @@ Body conventions:
 
 ## Finding pages
 
-There is no stored index. The catalog is **derived** from the pages themselves, so it
-cannot go stale and nothing has to be kept in sync:
+Two different things, and keeping them separate is the whole design:
+
+- **`wiki/index.md` is the map.** One row per topic area: what belongs in it, where to
+  start, what it still lacks. It answers *where does a new page go* and *what don't we
+  know yet*. It does not list pages, so it does not go stale as pages change.
+- **The catalog is derived.** Page-level detail — every page with its category and
+  summary — comes from a command, so it is always current.
+
+Read `index.md` when you need orientation or are deciding where a new page belongs. Run
+the catalog when you need to know what actually exists:
 
 ```bash
 head -n 12 wiki/*.md wiki/sources/*.md | grep -E '^(==>|category:|summary:)'
 ```
 
 That is the first command of most sessions. It prints every page with its category and
-one-line summary — the same thing a hand-written index would, minus the drift.
+one-line summary, always current, because there is no second copy to fall behind.
+
+The division of labour is: **a property of one page lives in that page's frontmatter; a
+statement about the collection lives in `index.md`.** Never copy a page's summary into
+`index.md` — that is the drift that got the old catalog deleted.
 
 Narrow it when you already know the shape of the question:
 
@@ -128,10 +141,9 @@ Use the derived catalog to *choose* pages and grep to *catch what it missed*. A 
 is one line and will not mention everything a page covers, so when a question doesn't map
 cleanly onto a summary, grep the full text before concluding the wiki has no answer.
 
-There is deliberately no saved view file (no `.base`, no `index.md`). A saved view would
-only serve the human anyway — a `.base` file is a query definition, so reading it gives
-you the query, not the results. For browsing inside Obsidian, use the tag pane, the graph,
-and search; for anything you need the *answer* to, use the commands above.
+There is deliberately no saved *view* file (no `.base`). A saved query would only serve
+the human anyway — reading a `.base` gives you the query, not the results. For browsing
+inside Obsidian, use `index.md`, the tag pane, the graph, and search.
 
 ## Workflows
 
@@ -140,7 +152,8 @@ and search; for anything you need the *answer* to, use the commands above.
 One raw item at a time. The cost is paid once here so that later queries read two pages
 instead of re-reading the source.
 
-1. Run the catalog command (see [Finding pages](#finding-pages)) to see what exists.
+1. Read `wiki/index.md` for the map, then run the catalog command (see
+   [Finding pages](#finding-pages)) to see what actually exists.
 2. Read the raw item. This is the **only** time it gets read — everything downstream
    reads the wiki instead.
 3. Discuss the key takeaways with the user before writing. Let them tell you what to
@@ -152,8 +165,11 @@ instead of re-reading the source.
    `tool-use.md` too. Add links in both directions — the new page links to what it
    builds on, and the existing pages link forward to it.
 6. Give every new page a `category:` and a `summary:`, reusing existing values where
-   they fit. This is what puts the page into the catalog — there is no index to update.
-7. Commit.
+   they fit. That alone puts it in the catalog — **do not add a row to `index.md`.**
+7. Touch `index.md` only if this source changed the *map*: a new topic area, an area
+   that now has a first page worth naming as `Start here`, or a `Wanted` gap this
+   source just filled. Most ingests leave it alone.
+8. Commit.
 
 A single source touching four or five pages is normal. One that touches only its own
 source page usually means step 5 was skipped.
@@ -188,9 +204,18 @@ done
 
 # pages that open straight into a section, with no lede
 for f in wiki/*.md wiki/sources/*.md; do
-  awk 'NR>1 && /^---$/{fm++; next} fm==2 && /^# /{t=1; next}
+  awk 'NR==1 && /^---$/{infm=1; next} infm && /^---$/{infm=0; done=1; next} infm{next}
+       done && /^# /{t=1; next}
        t && NF { if ($0 ~ /^#/) print FILENAME": no lede"; exit }' "$f"
 done
+
+# categories used by a page but missing from the index map, and vice versa
+# ('meta' is index.md's own category, not a topic area)
+comm -3 <(head -n 12 wiki/*.md wiki/sources/*.md | sed -n 's/^category: //p' \
+            | grep -v '^meta$' | sort -u) \
+        <(sed -n 's/^| `\([a-z-]*\)`.*/\1/p' wiki/index.md | sort -u)
+# left column  = used on a page but unmapped -> add it to index.md
+# right column = mapped with no pages yet    -> that is a declared gap, fine
 
 # categories used only once — often a synonym of an existing one
 head -n 12 wiki/*.md wiki/sources/*.md | grep '^category:' | sort | uniq -c | sort -n
@@ -216,6 +241,7 @@ Then do the pass only an LLM can do — read the pages and look for:
 - pages that ought to link to each other and don't
 - summaries that no longer match what the page grew into, or contradict its own lede
 - pages that open straight into a `##` section with no lede
+- `index.md` rows whose `Start here` or `Wanted` no longer reflect what the wiki holds
 
 Report findings, propose the fixes, and apply them only once the user approves.
 
@@ -250,4 +276,6 @@ git log -S'<claim text>' -- wiki/             # when a claim entered the wiki
 - Everything is written in **English**.
 - Every page in `wiki/` has frontmatter, including `category:` and `summary:` — those
   two fields are what makes it findable at all.
+- `index.md` has one row per topic area, never one per page. If you are adding a row
+  because you added a page, stop: the catalog already covers it.
 - New raw files are named `YYYY-MM-DD-<slug>.<ext>`.
