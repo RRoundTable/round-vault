@@ -17,6 +17,28 @@ design argument is serious. The evidence so far is almost entirely self-graded: 
 no architecture disclosure, no public benchmarks by policy, and an eval that scores
 agreement with frontier models rather than correctness.
 
+## The contract
+
+A request is a state plus named questions. Each question is one of three primitives
+([[typesafe-docs]]):
+
+| Primitive | Asks | Returns |
+| --- | --- | --- |
+| Choice | pick one of your options | choice, probabilities over options, confidence |
+| Score | rate against ordered levels | continuous score, distribution, confidence |
+| Noul | is this statement true | one probability (no confidence field) |
+
+Questions in one call run **in parallel and in isolation** against the same state, so
+adding questions barely adds latency and no question's context is polluted by another's
+([[typesafe-docs]]). This is the sub-agent rule from [[harness]], applied inside a single
+model call: independent work, kept separate so nothing contaminates the rest. The cost is
+that nothing within a call can depend on another answer, so any dependency is expressed as
+code across calls.
+
+`confidence` is not a separate estimate. It is computed from the returned distribution,
+approximately a normalized top-option probability, so it is exactly as trustworthy as the
+probabilities under it ([[typesafe-docs]], [[calibration]]).
+
 ## What is claimed
 
 TypeSafe's claims, grouped by how much the company itself stands behind them
@@ -67,6 +89,14 @@ code ([[typesafe-jev-launch-post]]). Read plainly, the model is built to answer 
 questions, and the *reasoning* moves out of the model and into the calling program. This
 is the actual architectural bet. The model does System 1 judgments, and ordinary code
 supplies the System 2 structure that an LLM would otherwise generate as tokens.
+
+The docs make it a rule. A question should be a "gut-check determination" a knowledgeable
+person could make in seconds. Anything that weighs several factors gets split, with the
+parts combined by a formula in code ([[typesafe-docs]]). The pitch is control: reweight a
+coefficient instead of rewriting a prompt. The unstated cost is that someone has to choose
+those coefficients, and choosing them well takes labeled examples. The same holds for the
+confidence thresholds, which TypeSafe tells users to tune on their own data. See
+[[confidence-gated-routing]].
 
 That puts Jev's natural home inside a [[harness]] rather than in place of the agent's
 model. It suits the per-step decisions an agent loop makes over and over (route this,
