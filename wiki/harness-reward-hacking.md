@@ -77,6 +77,25 @@ system here (an agent rewriting its own repository), reports that all experiment
 **sandboxing and human oversight**. That the authors state it in the abstract is itself the
 norm being established: self-modifying harness work is expected to declare its containment.
 
+## A classifier is not a permission
+
+The read-only surface above is a *structural* control. The agent cannot write to the
+verifier, whatever it says. The other common way to gate actions is a *classifier*: a
+model inspects each proposed action and blocks the risky ones. Coding harnesses ship this
+for dangerous commands, and LangChain's `AutoModeMiddleware` offers it for any agent,
+using [[jev]] to screen tool calls such as `bash` before they run
+([[langchain-jev-harness]]).
+
+The two are not interchangeable. A classifier gate is a judge model, so it inherits the
+judge row of the table above: an adversary, or an optimizing loop, can learn inputs that
+pass it. And the threat it exists for, bad instructions "from a motivated enough
+attacker", sits in the same context the gate has to read to classify the call. The post
+states the threat. That the gate reads attacker-reachable text is an inference from how
+in-context classification works, not something the post measures. A classifier makes a
+good *additional* layer in front of a structural boundary. As the only boundary, it is a
+probability of refusal, not a permission. The gate's false-block and miss rates are
+unreported.
+
 ## Evidence-bound edits
 
 AHE's second control is on the shape of a change rather than its target. Every edit is a

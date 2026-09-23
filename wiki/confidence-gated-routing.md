@@ -57,6 +57,14 @@ proceeds, and low confidence escalates to the expensive model or a person. The e
 path is what makes the cheap first stage acceptable, and it only works if low confidence
 reliably marks the cases the cheap stage gets wrong.
 
+The first public harness integration stops short of this ([[langchain-jev-harness]]).
+LangChain's model router picks a fast or powerful model **once per run** from the latest
+user message and records the confidence without acting on it. Its tool-risk gate blocks
+or allows. Neither sends an uncertain decision anywhere. Both are routing, but not yet
+confidence-gated routing. The missing third band ("I'm not sure, ask something
+stronger") is the part that needs calibration, and it is the part nobody has shipped
+with measurements.
+
 ## What it cannot fix
 
 A gate is only as good as the calibration behind it, and calibration is domain-specific.

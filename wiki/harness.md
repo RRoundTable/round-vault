@@ -88,6 +88,23 @@ inside a standard agentic coding environment with exactly this tool set —
 `Read, Write, Edit, Bash, Glob, Grep, TodoWrite` — rather than any special-purpose
 optimizer machinery.
 
+## Decision calls inside the loop
+
+The loop above spends a full model call on every step, including the many steps whose
+output is really a small decision: which model should handle this, is this tool call safe,
+is this done. LangChain's integration of [[jev]] moves those decisions to a typed decision
+model exposed as **middleware**. A router picks the model for a run, and a gate checks
+tool calls before they execute, while the LLM keeps the open-ended work
+([[langchain-jev-harness]]). Because the decision model accepts the agent's own message
+history as its state, it can be dropped in at any hook without reformatting context.
+
+This fits the OS analogy better than it first looks. A harness already decides things
+with deterministic code (permissions, budgets, retries). A decision model adds the
+decisions that are too fuzzy for code but too frequent and too narrow to justify an LLM
+call. The pattern that makes them safe is [[confidence-gated-routing]]: act on confident
+answers, escalate the rest. The first public integration doesn't implement that
+escalation yet.
+
 ## Harness layer versus core intelligence
 
 Weng's near-term prediction, stated as a prediction and not a result:

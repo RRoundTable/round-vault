@@ -101,7 +101,10 @@ confidence thresholds, which TypeSafe tells users to tune on their own data. See
 That puts Jev's natural home inside a [[harness]] rather than in place of the agent's
 model. It suits the per-step decisions an agent loop makes over and over (route this,
 gate that, is this done), where an LLM call is slow and expensive and a typed answer is
-exactly what the loop needs.
+exactly what the loop needs. LangChain's integration does this, shipping Jev as a model
+router and a pre-execution tool-risk gate ([[langchain-jev-harness]]). Neither middleware
+uses confidence to escalate yet, so the property that would distinguish Jev from any fast
+classifier goes unexercised in its first harness deployment.
 
 ## Known limits
 
