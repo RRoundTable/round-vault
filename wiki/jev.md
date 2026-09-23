@@ -68,6 +68,13 @@ same failure: a confident wrong output. TypeSafe's own chart labels its 0% as no
 confident answers are right and wrong answers come with low confidence. That is
 unmeasured.
 
+Hallucination theory sharpens this. Kalai et al. trace hallucinations to "errors in binary
+classification" ([[jev-related-arxiv-abstracts]]). On that account a confidently wrong
+Noul is not a way around hallucination. It is the elemental case. Kalai & Vempala do leave
+an opening: pretraining gives "no statistical reason" to hallucinate *systematic* facts,
+and other architectures may reduce those. That is a narrower claim than TypeSafe's, and a
+testable one.
+
 ## The eval measures agreement, not accuracy
 
 Jev's comparative evidence comes from "workflow evals". Every model runs the same fixed
@@ -105,6 +112,32 @@ exactly what the loop needs. LangChain's integration does this, shipping Jev as 
 router and a pre-execution tool-risk gate ([[langchain-jev-harness]]). Neither middleware
 uses confidence to escalate yet, so the property that would distinguish Jev from any fast
 classifier goes unexercised in its first harness deployment.
+
+## Where it sits in the literature
+
+The published record supports Jev's premise and contests its novelty
+([[jev-related-arxiv-abstracts]]).
+
+**The premise holds.** Base models are well calibrated on multiple-choice and true/false
+questions, which are Jev's formats. RLHF degrades that calibration, and binary-reward RL
+makes models over-confident in wrong answers. Proper-scoring-rule rewards restore it
+(RLCR, Rewarding Doubt), and DCPO finds accuracy and calibration gradients in direct
+conflict. Together these are a better case for a calibration-first model class than
+anything TypeSafe has published. See [[calibration]].
+
+**The novelty is contested.** Zero-shot classification against arbitrary labels supplied
+at call time was benchmarked and cast as entailment in 2019. Fine-tuned encoders like
+ModernBERT are the production workhorse for fast structured classification. What Jev adds,
+if its claims hold, is the combination: task specified in natural language per call,
+frontier-level judgment, and trained calibration.
+
+**The name is taken.** "RLCD" already refers to Reinforcement Learning from Contrastive
+Distillation (2023), an unrelated alignment method.
+
+**Decomposition has an explanation.** Format restrictions measurably degrade LLM reasoning,
+and more so the stricter the format. A model emitting no reasoning tokens at all should
+need questions small enough to require none. Work on distilling System 2 into System 1
+names a boundary too: complex math reasoning that needs chain of thought did not distil.
 
 ## Known limits
 

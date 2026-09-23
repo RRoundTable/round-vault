@@ -61,3 +61,53 @@ output distribution toward one style so that the probabilities stop reflecting t
 spread of plausible answers ([[typesafe-docs]]). Its claimed remedy, RLCD, optimizes
 probabilities against outcomes, but it is unpublished, and TypeSafe reports no calibration
 measurement for Jev ([[typesafe-jev-launch-post]]).
+
+The published record supports the premise at every stage of the pipeline
+([[jev-related-arxiv-abstracts]]):
+
+| Stage | Effect on calibration |
+| --- | --- |
+| pretraining | large models are well calibrated on multiple-choice and true/false questions in the right format |
+| RLHF | conditional probabilities degrade; verbalized confidence becomes the better signal, by ~50% relative ECE |
+| RLVR, binary rewards | guessing goes unpenalized; models become over-confident in wrong answers |
+
+So the probabilities most worth thresholding on exist *before* post-training and are
+damaged by it. That is the strongest version of TypeSafe's argument, and it comes from
+other people's papers.
+
+## Training for it directly
+
+The fix the literature converges on is to reward a **proper scoring rule**, a score
+minimized only when stated confidence equals the true probability of being right. RLCR
+adds a Brier-score term to the correctness reward and proves that any bounded proper
+scoring rule yields a model that is both accurate and calibrated. Empirically it improves
+calibration with no accuracy loss, out of domain as well. Rewarding Doubt does the same
+with the log score ([[jev-related-arxiv-abstracts]]). These are the nearest published
+counterparts to RLCD, which is described in one sentence and unpublished.
+
+Two further results shape what to expect from a model built this way
+([[jev-related-arxiv-abstracts]]):
+
+- **Accuracy and calibration pull against each other.** DCPO finds a gradient conflict
+  between them under RLVR and fixes it by decoupling the objectives. Calibration needs its
+  own objective, not a penalty term added to someone else's. This is the best support for
+  building a separate model class around it.
+- **Calibration is separable from accuracy.** A 4B model trained with proper scoring
+  rules matched frontier models' calibration on factual QA while being much less accurate.
+  A model can know *when* it is likely wrong without being right more often. That is
+  exactly the property [[confidence-gated-routing]] needs from a cheap first stage.
+
+The baseline any such claim has to beat is cheap. Temperature scaling, one parameter fit
+after training, is "surprisingly effective" at calibrating neural classifiers
+([[jev-related-arxiv-abstracts]]). A trained-in calibration result that doesn't report
+against post-hoc scaling hasn't shown its training method was needed.
+
+## Calibration does not remove hallucination
+
+Kalai & Vempala show that a calibrated *generative* model must hallucinate arbitrary facts
+at about the rate of facts seen once in training. Kalai et al. trace hallucination to
+binary-classification errors, sustained by evaluations that reward guessing over abstaining
+([[jev-related-arxiv-abstracts]]). Calibration therefore does not make wrong answers go
+away. It makes them *priced*: a calibrated model is wrong at the rate its probabilities
+say. For software that is the useful property, and it is the honest replacement for
+"can't hallucinate" ([[jev]]).

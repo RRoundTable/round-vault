@@ -188,3 +188,11 @@ Note the asymmetry this creates with the benchmarks above. Every benchmark on th
 outcomes, so a run that correctly abandons a bad hypothesis scores the same as one that never
 started. Nothing in the current evaluation stack rewards a well-reasoned negative result, which
 is the same incentive that shaped the literature the models were trained on.
+
+Kalai et al. (2025) make the same argument about hallucination and turn it into a
+prescription. Models hallucinate partly because most benchmarks are graded so that
+**guessing when uncertain scores better than abstaining**. They argue the fix is to change
+how existing leaderboard benchmarks are scored, not to add more hallucination evals
+([[jev-related-arxiv-abstracts]]). An evaluator that gives no credit for "I don't know"
+trains the over-optimism failure mode above. Proper-scoring-rule rewards are the training
+side of the same fix ([[calibration]]).

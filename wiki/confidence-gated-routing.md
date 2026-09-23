@@ -65,6 +65,24 @@ confidence-gated routing. The missing third band ("I'm not sure, ask something
 stronger") is the part that needs calibration, and it is the part nobody has shipped
 with measurements.
 
+## Prior art
+
+None of this is new as control flow ([[jev-related-arxiv-abstracts]]):
+
+- **Selective classification** (2017) is the rigorous version of the low band. The user
+  sets a target risk level, and the classifier rejects inputs as needed to hold it with
+  high probability, trading coverage for guaranteed error. TypeSafe's bands pick
+  thresholds by hand. Selective classification derives them from a risk target and a
+  held-out sample.
+- **FrugalGPT** cascades from cheap to expensive LLMs and matches GPT-4 at up to 98% lower
+  cost. **RouteLLM** trains a strong/weak router on preference data, cuts cost by more
+  than 2×, and keeps working when the underlying models are swapped. These are the
+  baselines a decision-model router should be measured against.
+
+The distinctive element of a decision-model router is that it routes by criteria written
+in plain language, zero-shot, rather than by a router trained on preference data. Whether
+that routes as well as a trained router is untested.
+
 ## What it cannot fix
 
 A gate is only as good as the calibration behind it, and calibration is domain-specific.
