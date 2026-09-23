@@ -115,6 +115,23 @@ enough that checking them first is most of the available value. It is also the r
 for a verifier that has to survive an adversarial agent — external, uniform, and outside the
 loop being optimized ([[harness-reward-hacking]]).
 
+## Grading against a stronger model measures agreement
+
+TypeSafe's "workflow evals" for [[jev]] show a common evaluator shape outside auto-research,
+and its limit. There are no ground-truth labels. Every model runs the same fixed workflow
+code, and its answers are scored against the **averaged probabilities of two frontier
+models** ([[typesafe-jev-launch-post]]). This makes evaluation cheap and possible on tasks
+nobody has labeled, and it builds in a ceiling: the best achievable score is *matching the
+reference*. So the method cannot show the model under test being better than the
+references, and it cannot separate a calibrated model from one that faithfully copies the
+references' errors. It is LLM-as-judge with a probability distribution for a verdict, and
+it inherits the judge-specific overfitting risk in [[harness-reward-hacking]].
+
+The same eval makes one choice worth copying: it **freezes the harness**, explicitly so
+that gains cannot come from harness engineering fitted to the eval. This is CoE Audit's
+logic applied to the pipeline instead of the output. Hold the machinery fixed so that
+whatever moves the score is attributable to the component under test.
+
 ## Benchmarks
 
 | Benchmark | Tasks | Best reported result |
